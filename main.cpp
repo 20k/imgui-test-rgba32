@@ -68,7 +68,28 @@ int main(int, char**)
 
     // Our state
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    
+    unsigned char* out_8 = nullptr;
+    int owidth = 0;
+    int oheight = 0;
+    ImGui::GetIO().Fonts->GetTexDataAsAlpha8(&out_8, &owidth, &oheight, nullptr);
 
+    unsigned int* out_32 = nullptr;
+    owidth = 0;
+    oheight = 0;
+    ImGui::GetIO().Fonts->GetTexDataAsRGBA32((unsigned char**)&out_32, &owidth, &oheight, nullptr);
+
+    for(int y=0; y < oheight; y++)
+    {
+        for(int x=0; x < owidth; x++)
+        {
+            uint8_t o_32_8 = (out_32[y * owidth + x] >> IM_COL32_A_SHIFT) & 0xFF;
+            uint8_t o_8_8 = out_8[y * owidth + x];
+            
+            assert(o_32_8 == o_8_8);
+        }
+    }
+    
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
